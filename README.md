@@ -63,41 +63,6 @@ dependencies:
     - tree==0.2.4
 ```
 
-
-# EvoZero-PeptideDesign
-
-Main code In EvoZero/code/peptide_manuscript/: 
-
-+ Main
-  - ./evozero_peptide_expand_m_p.py
-
-- AlphaFold simulated environment
-  - ./sequence_env_alphfold_expand_m_p.py
-
-+ Optimizer
-  - ./mcts_alphaZero_mutate_expand_m_p.py
-
-The output files are: the new polypeptide sequence designed by EvoZero, the plddt score corresponding to the sequence, the loss result, the 3D structure file of the peptide, and the hyper-parameters of the EvoZero-peptide model.
-
-+ Output dir
-
-  + EvoZero/output/EvoZero_output/[PDBID]/[PDBID]_xxxx_init_1_playout22
-
-    + sequence.npy
-
-    + plddt.npy
-
-    + loss.npy
-
-    + unrelaxed_[xxx].pdb
-
-    + commandline_args.txt
-
- 
-
-
-
-
 # Getting started
 
 In the first step, you will need to download parameters&datasets to run each notebook and reproduce the result. The download links for datasets are shown in a folder named "data" in the following tasks directories.
@@ -192,10 +157,36 @@ EvoZero is used for four missions, and you can see the four mission code directo
 + Peptide_task
 
 
-### Peptide design task
+# EvoZero Peptide Design Task
 
-We used the MCTS strategy with AlphaFold as a predictor for the design of receptor protein-polypeptide complexes. 
+We used the MCTS strategy with AlphaFold as a predictor for the design of receptor protein-polypeptide complexes. Main code In EvoZero/code/peptide_manuscript/: 
 
++ Main
+  - ./evozero_peptide_expand_m_p.py
+
+- AlphaFold simulated environment
+  - ./sequence_env_alphfold_expand_m_p.py
+
++ Optimizer
+  - ./mcts_alphaZero_mutate_expand_m_p.py
+
+The output files are: the new polypeptide sequence designed by EvoZero, the plddt score corresponding to the sequence, the loss result, the 3D structure file of the peptide, and the hyper-parameters of the EvoZero-peptide model.
+
++ Output dir
+
+  + EvoZero/output/EvoZero_output/[PDBID]/[PDBID]_xxxx_init_1_playout22
+
+    + sequence.npy
+
+    + plddt.npy
+
+    + loss.npy
+
+    + unrelaxed_[xxx].pdb
+
+    + commandline_args.txt
+
+## USAGE
 It supports optimal peptide design under playout loss and move loss, AlphaFold feature extraction and intermediate feature preservation.
 
 You can run it In your local conda environment
@@ -319,12 +310,4 @@ This script was used to design peptide.
 ~~This script was used to compare the effects of EvoZero in different peptides.~~
 
 - ~~EvoZero/code/Peptide_task/EvoZero_analysis.ipynb~~
-
-
-
-
-
-
-
-
 
