@@ -1,15 +1,17 @@
-
+# -*- coding: utf-8 -*-
+"""
+An implementation of the training pipeline of EvoZero for GFP protein mutation
+@author: Yi Wang
+"""
 
 from __future__ import print_function
 import random
 import numpy as np
 import pandas as pd
 from collections import defaultdict, deque
-from sequence_env_m_p2 import Seq_env, Mutate
-from mcts_pure import MCTSPlayer as MCTS_Pure
+from sequence_env_m_p import Seq_env, Mutate
 from mcts_alphaZero_mutate_expand_m_p_gfp import MCTSMutater
 from p_v_net_torch import PolicyValueNet  # Pytorch
-#from p_v_net_2 import PolicyValueNet
 from p_v_net_3 import PolicyValueNet
 from env_model import CNN
 import torch
@@ -20,24 +22,14 @@ import torch.nn.functional as F
 from typing import List, Union
 import sys
 import datetime
-import os
-os.environ['CUDA_VISIBLE_DEVICES']='3'
 
-data_dir = './dataset/GFP_237.txt'
-#要换成238
-gfp_wt_sequence = (
+data_dir = '/data/PAB1_GFP_data/GFP_237.txt'
+
+pab1_wt_sequence = (
         "SKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTLSYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK"
     )
 starts = {
-        "1-3": "SKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYSKLTLKFICTTGKLPVPWPTLVTTLSYGVRCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFREDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNLEDGSVQLADHYQQNTPIGDGPALLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK",  # noqa: E501
-        "3-4": "SKGEELFTGVVPILVEQDGDVNGHKFSVSGEGVGDATYGKLTLKFICTTGKLPVPWPTLVTTLSYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDSNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEGGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK",  # noqa: E501
-        "4-2": "SKGEELSTGVVPILVELDGDVNGHKFSVSGEGEGEATYGKLTLKFICTTGKLPVPWPTLVTTLSYGVQCFSRYPDHMKQHDFFKSATPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSNNVYIMADKQKSGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK",  # noqa: E501
-        "e-1": "SKGEELFTGVVPIPVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPRPTLVTTLSYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLAERYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK",  # noqa: E501
-        "5-3": "SKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTLSYGVQCFSRYPDHMKQHDFFKSAMPEGYVQGRTIFFKDDGNYKTRAEVKFEGDTLVNRFELKGIDFKEDGNILGHKLEYNYNSHNVYIMADRQKNGIKVNFKIRHNIEDGNVQLADHYQQNSPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK",#0.08029
-        "9-2": "SKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATCGKLTLKFICTTGKLPVPWPTLVTTLSYGVQCFSRYPDHMKQLDFFKSAMPEGYVQERTIFSKDDGNYKTRAEAKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSEQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK",#0.08029
-        "11-3": "SKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTLSYGVQCFSRYPDHMKQHDFFRSAMPEGYVQERTIFFKDDGNYKTRAEVEFEGDTLVNRIELRGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKHGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK",#0.08029
-        "10-1": "SKGEELFTGVVPILVELDGDVNGHRFSVSGEGEGDATYGKPTLKFICTTGKLPVPWPTLVTTLSYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKARAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK",#0.08029
-         "9-1": "SKGEELFTGVVPILVELDGDVNGNKFSVSGEGEGVATYGKLTLKFICTTGKLHVPWPTLVTTLSYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHSIEDGSVQLADHYQQNTPIGDGPVPLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK"#0.08029
+        "start_seq": "SKGEELFTGVVPILVELDGDVNGHRFSVSGEGEGDATYGKPTLKFICTTGKLPVPWPTLVTTLSYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKARAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK" # noqa: E501
     }
 AAS = "ILVAGMFYWEDQNHCRKSTP"
 
@@ -52,7 +44,7 @@ class MyDataset(data.Dataset):
         self.sequences = sequences
         self.labels = labels
 
-    def __getitem__(self, index):#返回的是tensor
+    def __getitem__(self, index):
         seq, target = self.sequences[index], self.labels[index]
         return seq, target
 
@@ -63,24 +55,19 @@ def one_hot_to_string(
 ) -> str:
     """
     Return the sequence string representing a one-hot vector according to an alphabet.
-
     Args:
         one_hot: One-hot of shape `(len(sequence), len(alphabet)` representing
             a sequence.
         alphabet: Alphabet string (assigns each character an index).
-
     Returns:
         Sequence string representation of `one_hot`.
-
     """
     residue_idxs = np.argmax(one_hot, axis=1)
     return "".join([alphabet[idx] for idx in residue_idxs])
 
 def raw_to_features(data_dir,part=1):
-    # data_dir = "/Users/wangyi/FLEXS-master/flexs/landscapes/data/GFP/GFP_40mers.txt"
     fr = open(data_dir, "r")
     ll = fr.readlines()
-    #random.shuffle(ll)
     seq_list = []
     label_list = []
     print("part:{}".format(part))
@@ -101,7 +88,6 @@ def raw_to_features(data_dir,part=1):
     labels = labels.to(torch.float32)
     one_hots = torch.from_numpy(seq_np)
     one_hots = one_hots.to(torch.float32)
-#     print(one_hots)
     return one_hots, labels
 
 def train_cnn_predictor(data_dir,part=1):
@@ -109,20 +95,19 @@ def train_cnn_predictor(data_dir,part=1):
     one_hots, labels = raw_to_features(data_dir,part)
     seq_dataset = MyDataset(one_hots, labels)
     index = [10,10,10,10,10,10,5,5,5,3,3]
-    #index = [10,10,10,5,5,3]
     epochs = index[part]
     train_loader = DataLoader(
         seq_dataset, batch_size=128, shuffle=True)
     
     model = CNN(
-        len(gfp_wt_sequence),
+        len(pab1_wt_sequence),
         len(AAS),).to('cuda')
     optimizer = optim.Adam(model.parameters())
     
     for epoch in range(epochs):
         for i, batch in enumerate(train_loader):
             inputs = batch[0]
-            inputs = inputs.permute(0,2,1).to('cuda') # conv1d 要求 输入顺序batch, embedding_dim，m
+            inputs = inputs.permute(0,2,1).to('cuda') 
             labels = batch[1].to('cuda')
             optimizer.zero_grad()
             
@@ -135,7 +120,6 @@ def train_cnn_predictor(data_dir,part=1):
     return model
 class TrainPipeline():
     def __init__(self, start_seq, alphabet, model, trust_radius, init_model=None): #init_model=None
-        # params of the board and the game
         self.seq_len = len(start_seq)
         self.vocab_size = len(alphabet)
         self.n_in_row = 4
@@ -151,7 +135,7 @@ class TrainPipeline():
         self.lr_multiplier = 1.0  # adaptively adjust the learning rate based on KL
         self.temp = 1.0  # the temperature param
         self.n_playout = 200  # num of simulations for each move 400   1600
-        self.c_puct = 10  #0.5  # 10
+        self.c_puct = 10 #0.5  # 10
         self.buffer_size = 10000
         self.batch_size = 64  # mini-batch size for training  512
         self.data_buffer = deque(maxlen=self.buffer_size)
@@ -180,11 +164,11 @@ class TrainPipeline():
             # start training from an initial policy-value net
             self.policy_value_net = PolicyValueNet(self.seq_len,
                                                    self.vocab_size,
-                                                   model_file=init_model,use_gpu=True)#
+                                                   model_file=init_model,use_gpu=True)
         else:
             # start training from a new policy-value net
             self.policy_value_net = PolicyValueNet(self.seq_len,
-                                                   self.vocab_size,use_gpu=True)#
+                                                   self.vocab_size,use_gpu=True)
         self.mcts_player = MCTSMutater(self.policy_value_net.policy_value_fn,
                                       c_puct=self.c_puct,
                                       n_playout=self.n_playout,
@@ -204,8 +188,6 @@ class TrainPipeline():
             self.m_p_dict.update(self.p_dict)
             if self.episode_len == 0:
                 self.buffer_no_extend = True
-            # augment the data
-            #play_data = self.get_equi_data(play_data)
             else:
                 self.data_buffer.extend(play_data)
                 for seq, fit in seq_and_fit:  #alphafold_d
@@ -215,7 +197,7 @@ class TrainPipeline():
                         if seq not in self.m_p_dict.keys():
                             self.m_p_dict[seq] = fit
                     
-                        if len(self.generated_seqs)%15==0 and len(self.generated_seqs)>counts and self.part<=10:
+                        if len(self.generated_seqs)%10==0 and len(self.generated_seqs)>counts and self.part<=10:
                             self.retrain_flag=True
                        
 
@@ -264,7 +246,6 @@ class TrainPipeline():
                         explained_var_old,
                         explained_var_new))
         return loss, entropy
-
     def policy_evaluate(self, n_games=10):
 
         current_mcts_player = MCTSMutater(self.policy_value_net.policy_value_fn,
@@ -273,7 +254,7 @@ class TrainPipeline():
         pure_mcts_player = MCTS_Pure(c_puct=5,
                                      n_playout=self.pure_mcts_playout_num)
         win_cnt = defaultdict(int)
-        for i in range(n_games):   #这个地方可能需要重新考虑一下
+        for i in range(n_games):   #
             winner = self.mutate.start_p_mutating(current_mcts_player,
                                           pure_mcts_player,
                                           start_player=i % 2,
@@ -295,23 +276,12 @@ class TrainPipeline():
                 print("batch i:{}, episode_len:{}".format(
                         i+1, self.episode_len))
                 if self.retrain_flag and self.part<=10:
-                    print('重新训练predictor')
-                    seq = 'SKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTLSYGVQCFGRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFEGDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK'
-                    one_hots = torch.from_numpy(string_to_one_hot(seq,AAS))
-                    one_hots = one_hots.unsqueeze(0)
-                    one_hots = one_hots.to(torch.float32)
-                    inputs = one_hots.permute(0, 2, 1).to('cuda')
-                    outputs = self.seq_env.model(inputs)
-                    outputs = outputs.squeeze()
-                    print('训练前得分：',outputs)
+                    print('train predictor again')
+
                     update_model = train_cnn_predictor(data_dir,self.part)
                     
                     self.seq_env.model = update_model
                     self.seq_env.model.eval()
-                    outputs2 = self.seq_env.model(inputs)
-                    outputs2 = outputs2.squeeze()
-                    print('训练后得分：',outputs2)
-                    print('轮次',self.part)
                     self.part = self.part+1
                     self.retrain_flag = False
                 if len(self.m_p_dict.keys()) >= 4000:
@@ -319,9 +289,9 @@ class TrainPipeline():
                     m_p_seqs = np.array(list(self.m_p_dict.keys()))
                     df_m_p = pd.DataFrame(
                         {"sequence": m_p_seqs, "pred_fit": m_p_fitness})
-                    df_m_p.to_csv(r"/home/Htang/workspace/project/FLEXS-master/new_evozero/evozero_gfp_seq10_1_16.csv",index=False)
+                    df_m_p.to_csv(r"/code/PAB1_GFP_task/EvoPlay_gfp_generated_sequence_1.csv",index=False)
                     endtime = datetime.datetime.now() 
-                    print('总耗时：',(endtime-starttime).seconds)
+                    print('time cost：',(endtime-starttime).seconds)
                     sys.exit(0)
                 if len(self.data_buffer) > self.batch_size and self.buffer_no_extend == False:
                     loss, entropy = self.policy_update()
@@ -331,20 +301,13 @@ class TrainPipeline():
 #model predict
 
 if __name__ == '__main__':
-    #MODEL_PATH = './gfp_checkpoint/CNN_GFP_checkpoint_19_0.0073_0.0519.tar'
-#     model = CNN(
-#         len(gfp_wt_sequence),
-#         len(AAS),
 
-#     )
-    #model2.load_state_dict(torch.load(MODEL_PATH))
     starttime = datetime.datetime.now() 
     model = train_cnn_predictor(data_dir)
     training_pipeline = TrainPipeline(
-        starts["10-1"], # starts["ed_10_wt"] ,gfp_wt_sequence, 0.1300  ,0.59, 0.005
+        starts["start_seq"], 
         AAS,
         model,
         trust_radius=100,
-
     )
     training_pipeline.run()
