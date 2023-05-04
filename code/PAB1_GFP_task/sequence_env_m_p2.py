@@ -7,12 +7,6 @@ import random
 from typing import List, Union
 import copy
 
-gfp_wt_sequence = (
-        "MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVT"
-        "TLSYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIE"
-        "LKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNT"
-        "PIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK"
-    )
 AAS = "ILVAGMFYWEDQNHCRKSTP"
 def string_to_one_hot(sequence: str, alphabet: str) -> np.ndarray:
 
@@ -51,7 +45,7 @@ def mutate_sequence(peptide_sequence, ex_list):
         #Go through a shuffled version of the positions and aas
         while True:
             seeds = peptide_sequence
-            pi_s = np.random.choice(np.arange(seqlen), 3, replace=False)
+            pi_s = np.random.choice(np.arange(seqlen), 4, replace=False)
             for pi in pi_s:
                 aa = np.random.choice(restypes, replace=False)
                 #new_s
@@ -80,10 +74,8 @@ class Seq_env(object):
                  starting_seq,
                  trust_radus,
                  ):
-        #自己加的变量
         self.max_moves = trust_radus
         self.move_count = 0
-        #自己加的变量
         self.seq_len = seq_len#self.width = int(kwargs.get('width', 8))
         self.vocab_size = len(alphabet)#self.height = int(kwargs.get('height', 8))
 
@@ -91,9 +83,8 @@ class Seq_env(object):
         self.model = model
         self.starting_seq = starting_seq
         self.seq = starting_seq
-        ####改
-        self._state = string_to_one_hot(self.seq, self.alphabet).astype(np.float32) #np.float32 是否需要改
-        #self.less_than_previous_count = []
+        ###
+        self._state = string_to_one_hot(self.seq, self.alphabet).astype(np.float32) #np.float32 
         self.init_state = string_to_one_hot(self.seq, self.alphabet).astype(np.float32)
         self.previous_init_state = string_to_one_hot(self.seq, self.alphabet).astype(np.float32)
         self.unuseful_move = 0
@@ -105,18 +96,12 @@ class Seq_env(object):
         #playout
         self.start_seq_exclude_list = []
         self.playout_dict = {}
-        #playout
-        #model 的代码
         self.model.eval()
     def init_seq_state(self): #start_player=0
 
         self.previous_fitness = -float("inf")
         self.move_count = 0
-        #self.less_than_previous_count = []
         self.unuseful_move = 0
-        #此处应该还会反复修改
-        #self._state = string_to_one_hot(self.starting_seq, self.alphabet).astype(np.float32)
-        #加入变异的起始状态
         self._state = copy.deepcopy(self.init_state)
         combo = one_hot_to_string(self._state, AAS)
         self.start_seq_exclude_list.append(combo)
@@ -124,35 +109,16 @@ class Seq_env(object):
         #
         if combo not in self.episode_seqs:
             self.episode_seqs.append(combo)
-        #
-        # mut_len = np.random.poisson(2) + 1
-        # for i in range(mut_len):
-        #     pos = random.choice(list(range(start.shape[0])))
-        #     pre_res = np.where(start[pos]==1)
-        #     tmp_l = list(range(self.vocab_size))
-        #     tmp_l.remove(pre_res[0])
-        #     res = random.choice(tmp_l)
-        #     self._state[pos] = 0
-        #     self._state[pos, res] = 1
-        # 加入变异的起始状态
-        #   起始序列的_state_fitness
-        #self.episode_seqs.append(one_hot_to_string(self._state,AAS))
         one_hots = torch.from_numpy(self._state)
         one_hots = one_hots.unsqueeze(0)
         one_hots = one_hots.to(torch.float32)
-        # seq_dataset = MyDataset(one_hots, labels)
         with torch.no_grad():
             inputs = one_hots
             inputs = inputs.permute(0, 2, 1).to('cuda')
-#             device = torch.device("cuda")
-#             inputs = inputs.to(device)
-            # print('输入为：',inputs)
             outputs = self.model(inputs)
-#             outputs=outputs[0][0].cpu().numpy()[0]
             outputs = outputs.squeeze()
         if outputs:
             self._state_fitness = outputs
-        #   起始序列的_state_fitness
         # keep available moves in a list
         self.availables = list(range(self.seq_len * self.vocab_size))
         #evo
@@ -212,9 +178,6 @@ class Seq_env(object):
                     with torch.no_grad():
                         inputs = one_hots
                         inputs = inputs.permute(0, 2, 1).to('cuda')
-                        # print('输入为：',inputs)
-#                         device = torch.device("cuda")
-#                         inputs = inputs.to(device)
                         outputs = self.model(inputs)
                         outputs = outputs.squeeze()
                     if outputs:
@@ -231,30 +194,20 @@ class Seq_env(object):
                     with torch.no_grad():
                         inputs = one_hots
                         inputs = inputs.permute(0, 2, 1).to('cuda')
-#                         device = torch.device("cuda")
-#                         inputs = inputs.to(device)
-                        # print('输入为：',inputs)
                         outputs = self.model(inputs)
-#                         outputs =outputs[0][0].cpu().numpy()[0]
                         outputs = outputs.squeeze()
                     if outputs:
                         self._state_fitness = outputs
                         self.playout_dict[combo] = outputs
                 else:
-                    #self._state_fitness = copy.deepcopy(self.playout_dict[combo])
                     self._state_fitness = self.playout_dict[combo]
-                    #self.loss = 1/(1000*self._state_fitness)
-        #
         current_seq = one_hot_to_string(self._state, AAS)
         if current_seq in self.episode_seqs:
             self.repeated_seq_ocurr = True
             self._state_fitness = 0.0
-            # self.availables.remove(move)
         else:
             self.episode_seqs.append(current_seq)
         if self._state_fitness > self.previous_fitness:  # and not repeated_seq_ocurr:  # 0.6* 0.75*
-            # self._state_fitness = 0.0
-            # self.availables.remove(move)
             self.init_state = copy.deepcopy(self._state)
             self.init_state_count = 0
         #
@@ -267,7 +220,7 @@ class Seq_env(object):
         if self.repeated_seq_ocurr == True:
             return True
         #
-        if self.move_count >= self.max_moves: # > 和 >= 的区别
+        if self.move_count >= self.max_moves: 
             return True
         #
         if self.unuseful_move == 1:
@@ -320,23 +273,17 @@ class Mutate(object):
         if (self.Seq_env.previous_init_state == self.Seq_env.init_state).all():
             self.Seq_env.init_state_count += 1
         if self.Seq_env.init_state_count >= 4:  #10,6,7,5,8
-            print("随机起始更换****")
-        #     #new_start_seq = random.choice(self.Seq_env.start_seq_pool)
-        #     #new_start_seq = self.Seq_env.start_seq_pool[0]
             current_start_seq = one_hot_to_string(self.Seq_env.init_state, AAS)
             episode_seqs = copy.deepcopy(self.Seq_env.episode_seqs)
             playout_seqs = copy.deepcopy(list(self.Seq_env.playout_dict.keys()))
             e_p_list = list(set(episode_seqs + playout_seqs))
-            #new_start_seq = mutate_sequence(current_start_seq, self.Seq_env.start_seq_exclude_list)
             new_start_seq = mutate_sequence(current_start_seq, e_p_list)
             self.Seq_env.init_state = string_to_one_hot(new_start_seq, self.Seq_env.alphabet).astype(np.float32)
-            #self.Seq_env.start_seq_pool.remove(new_start_seq)  #这里会改变episode seq列表
             self.Seq_env.init_state_count = 0
  
         self.Seq_env.init_seq_state()
         print("起始序列：{}".format(self.Seq_env.init_combo))
         generated_seqs = []
-        # alphafold_result = []
         fit_result = []
         play_seqs_list = []
         play_fit_list = []
@@ -355,7 +302,6 @@ class Mutate(object):
                 # perform a move
                 self.Seq_env.do_mutate(move)
                 generated_seqs.append(one_hot_to_string(self.Seq_env._state, AAS))
-                # alphafold_result.append(self.Seq_env.alphfold_dict)
                 fit_result.append(self.Seq_env._state_fitness)
                 print("move_fitness: %f\n" % (self.Seq_env._state_fitness))
                 print("episode_seq len: %d\n" % (len(self.Seq_env.episode_seqs)))
