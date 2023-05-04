@@ -9,7 +9,7 @@ import random
 import numpy as np
 import pandas as pd
 from collections import defaultdict, deque
-from sequence_env_m_p import Seq_env, Mutate
+from sequence_env_m_p2 import Seq_env, Mutate
 from mcts_alphaZero_mutate_expand_m_p_gfp import MCTSMutater
 from p_v_net_torch import PolicyValueNet  # Pytorch
 from p_v_net_3 import PolicyValueNet
