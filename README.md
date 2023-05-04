@@ -1,4 +1,4 @@
-# EvoPlay
+# EvoZero
 
 This repository contains code and tutorials for protein sequence design task from MGI-X, including ***Peptide binders design with MCTS-assisted AlphaFold*** and ***MCTS-assisted directed evolution***
 
