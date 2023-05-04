@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-An implementation of the training pipeline of EvoZero for GFP protein mutation
+An implementation of the training pipeline of EvoZero for PAB1 protein mutation
 
 @author: Yi Wang
 """
