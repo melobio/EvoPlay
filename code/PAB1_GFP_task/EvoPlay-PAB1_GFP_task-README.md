@@ -1,4 +1,4 @@
-# EvoZero
+# EvoPlay
 
 This repository contains code and tutorials for protein sequence design task from MGI-X, including ***PAB1_GFP_task***
 
@@ -18,9 +18,9 @@ This repository contains code and tutorials for protein sequence design task fro
 ```
 
 
-# EvoZero-PAB1_GFP_task
+# EvoPlay-PAB1_GFP_task
 
-Main code In EvoZero/code/PAB1_GFP_task/: 
+Main code In EvoPlay/code/PAB1_GFP_task/: 
 
 + Main
   - ./train_m_single_m_p_pab1.py
@@ -32,14 +32,14 @@ Main code In EvoZero/code/PAB1_GFP_task/:
 
 ## Getting started
 
-In this task, We train our EvoZero on two protein dataset(PAB1、GFP) and generate new sequences. to perform this task，we just need two steps:
+In this task, We train our EvoPlay on two protein dataset(PAB1、GFP) and generate new sequences. to perform this task，we just need two steps:
 
 
 ### Step1: Generate new sequences by using the below command:
 
 ### python train_m_single_m_p_pab1.py
 
-After runing this command,the generated sequences will be stored in the evozero_pab1_generated_sequence_1.csv,we can use the oracle landscape to evaluate the quality of the generated sequences.
+After runing this command,the generated sequences will be stored in the evoplay_pab1_generated_sequence_1.csv,we can use the oracle landscape to evaluate the quality of the generated sequences.
 
 
 
