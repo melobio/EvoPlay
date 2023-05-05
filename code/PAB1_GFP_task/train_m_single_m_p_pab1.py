@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-An implementation of the training pipeline of EvoZero for PAB1 protein mutation
+An implementation of the training pipeline of EvoPlay for PAB1 protein mutation
 
 @author: Yi Wang
 """
@@ -275,7 +275,7 @@ class TrainPipeline():
                     m_p_seqs = np.array(list(self.m_p_dict.keys()))
                     df_m_p = pd.DataFrame(
                         {"sequence": m_p_seqs, "pred_fit": m_p_fitness})
-                    df_m_p.to_csv(r"/code/PAB1_GFP_task/evozero_pab1_generated_sequence_1.csv",index=False)
+                    df_m_p.to_csv(r"/code/PAB1_GFP_task/evoplay_pab1_generated_sequence_1.csv",index=False)
                     endtime = datetime.datetime.now() 
                     print('time cost：',(endtime-starttime).seconds)
                     sys.exit(0)
