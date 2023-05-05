@@ -18,7 +18,7 @@ for j in range(1,2):
     seqs =[]
     all_score =[]
 
-    df_2 = pd.read_csv('/code/PAB1_GFP_task/evozero_pab1_generated_sequence_1.csv')
+    df_2 = pd.read_csv('/code/PAB1_GFP_task/evoplay_pab1_generated_sequence_1.csv')
     sequences = list(df_2['sequence'])
     print('sequence counts',len(sequences)) 
     score_list =[]
