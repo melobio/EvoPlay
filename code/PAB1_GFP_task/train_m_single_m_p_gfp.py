@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-An implementation of the training pipeline of EvoZero for GFP protein mutation
+An implementation of the training pipeline of EvoPlay for GFP protein mutation
 @author: Yi Wang
 """
 
