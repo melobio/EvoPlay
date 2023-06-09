@@ -1,17 +1,17 @@
-# EvoZero
+# EvoPlay
 
 This repository contains code and tutorials for protein sequence design task from MGI-X, including ***Peptide binders design with MCTS-assisted AlphaFold*** and ***MCTS-assisted directed evolution***
 
 + Citation
 
 ```
-@article{Licko2022evozero,
+@article{Licko2023EvoPlay,
   title={Self-play reinforcement learning turbocharges protein engineering},
   author={Yi Wang, Hui Tang, Lichao Huang, Lulu Pan, Lixiang Yang, Ming Ni, Huanming Yang, Feng Mu, Meng Yang},
   journal={xxxx},
   doi={xxxx},
   url={x x x},
-  year={2022},
+  year={2023},
   publisher={xxxx}
 }
 ```
@@ -23,10 +23,10 @@ This repository contains code and tutorials for protein sequence design task fro
 + GPU: NVIDIA A40 or NVIDIA RTX6000
 + python=3.8.10, cuda11.3, cudnn=8.4.1
 
-Detail in ./environment/evozero_binderdesign_env_py38_cuda11.yml
+Detail in ./environment/EvoPlay_binderdesign_env_py38_cuda11.yml
 
 ```shell
-### conda env export > evozero_binderdesign_env_py38_cuda11.yml
+### conda env export > EvoPlay_binderdesign_env_py38_cuda11.yml
 
 dependencies:
   - cudatoolkit=11.3.1=h2bc3f7f_2
@@ -72,7 +72,7 @@ In the first step, you will need to download parameters&datasets to run each not
 ```shell
 mkdir your_workspace
 cd your_workspace
-git clone https://github.com/melobio/EvoZero
+git clone https://github.com/melobio/EvoPlay
 ```
 
 ## Step2: Download parameters
@@ -93,28 +93,28 @@ ls -l ./data
 
 ## Step2: Pull Docker image or Local Installation
 
-Configure the environment or use the docker image. You can deploy the EvoZero environment in two ways:
+Configure the environment or use the docker image. You can deploy the EvoPlay environment in two ways:
 
 
-1. Pull EvoZero Docker image
+1. Pull EvoPlay Docker image
 
-The docker image has a total size of 24GB, including the alphafold parameter file (3.5GB), the complete conda environment evozero, cuda11.5 and cudnn8 with Ubuntu18.04, and we will provide dockerfile versions and smaller versions later.
+The docker image has a total size of 24GB, including the alphafold parameter file (3.5GB), the complete conda environment EvoPlay, cuda11.5 and cudnn8 with Ubuntu18.04, and we will provide dockerfile versions and smaller versions later.
 
 ```shell
 # Old docker images, size about: 24.3GB, only for peptide_task
-docker pull licko789/evozero:peptide
+docker pull licko789/EvoPlay:peptide
 
-# New docker images, size about: 29.2GB, for all evozero task
-docker pull licko789/evozero:latest
+# New docker images, size about: 29.2GB, for all EvoPlay task
+docker pull licko789/EvoPlay:latest
 ```
 
-And then, launch EvoZero docker image and enter the container interactively.
+And then, launch EvoPlay docker image and enter the container interactively.
 
 in the folder `your_workspace`, 
 ```shell
-# Launch EvoZero docker image
+# Launch EvoPlay docker image
 nvidia-docker run \
-  -it -rm licko789/evozero:latest \
+  -it -rm licko789/EvoPlay:latest \
   -v /your_workspace:/docker_workspace \
   /bin/bash
 ```
@@ -123,8 +123,8 @@ nvidia-docker run \
 2. Install environment locally in Ubuntu
 
 ```shell
-conda create -n evozero python=3.8 -y
-source activate evozero
+conda create -n EvoPlay python=3.8 -y
+source activate EvoPlay
 conda update -n base conda -y
 conda install cudnn==8.2 cudatoolkit==11.3 -y 
 conda install -c conda-forge openmm==7.5.1 pdbfixer matplotlib
@@ -143,26 +143,26 @@ conda install tensorflow-gpu=2.7
 pip install seaborn logomaker tree dm-tree py3Dmol
 pip install chex==0.0.7 dm-haiku==0.0.4 immutabledict==2.0.0 ml-collections==0.1.0
 
-# Added, support for gluc, gfp and other tasks of evozero
+# Added, support for gluc, gfp and other tasks of EvoPlay
 pip install openpyxl tape-proteins xlrd==1.2.0
 
 ```
 
 ## Step3: Execute specific task
 
-EvoZero is used for four missions, and you can see the four mission code directories in the Code directory：
+EvoPlay is used for four missions, and you can see the four mission code directories in the Code directory：
 + GB1_PhoQ_task
 + GLuc_design_task
 + PAB1_GFP_task
 + Peptide_task
 
 
-# EvoZero Peptide Design Task
+# EvoPlay Peptide Design Task
 
-We used the MCTS strategy with AlphaFold as a predictor for the design of receptor protein-polypeptide complexes. Main code In EvoZero/code/peptide_manuscript/: 
+We used the MCTS strategy with AlphaFold as a predictor for the design of receptor protein-polypeptide complexes. Main code In EvoPlay/code/peptide_manuscript/: 
 
 + Main
-  - ./evozero_peptide_expand_m_p.py
+  - ./EvoPlay_peptide_expand_m_p.py
 
 - AlphaFold simulated environment
   - ./sequence_env_alphfold_expand_m_p.py
@@ -170,11 +170,11 @@ We used the MCTS strategy with AlphaFold as a predictor for the design of recept
 + Optimizer
   - ./mcts_alphaZero_mutate_expand_m_p.py
 
-The output files are: the new polypeptide sequence designed by EvoZero, the plddt score corresponding to the sequence, the loss result, the 3D structure file of the peptide, and the hyper-parameters of the EvoZero-peptide model.
+The output files are: the new polypeptide sequence designed by EvoPlay, the plddt score corresponding to the sequence, the loss result, the 3D structure file of the peptide, and the hyper-parameters of the EvoPlay-peptide model.
 
 + Output dir
 
-  + EvoZero/output/EvoZero_output/[PDBID]/[PDBID]_xxxx_init_1_playout22
+  + EvoPlay/output/EvoPlay_output/[PDBID]/[PDBID]_xxxx_init_1_playout22
 
     + sequence.npy
 
@@ -192,8 +192,8 @@ It supports optimal peptide design under playout loss and move loss, AlphaFold f
 You can run it In your local conda environment
 
 ```shell
-source activate evozero
-cd EvoZero/code/Peptide_task
+source activate evoplay
+cd EvoPlay/code/peptide_task
 bash ./Run_manustript_design.sh
 ```
 
@@ -201,23 +201,29 @@ In addition，we also provide a complete docker image for users to use:
 
 ```shell
 # pull docker images
-docker pull licko789/evozero:peptide
-nvidia-docker run -it --name demo -v /your_workspace/:/workspace licko789/evozero:peptide /bin/bash
+docker pull licko789/EvoPlay:peptide
+nvidia-docker run -it --name demo -v /your_workspace/:/workspace licko789/EvoPlay:peptide /bin/bash
 
 # Run
 # NITER=2
-conda activate /opt/env/evozero
-cd /opt/EvoZero_for_codeocean/code/peptide_task/
+conda activate /opt/env/evoplay
+cd /opt/EvoPlay_for_codeocean/code/peptide_task/
 bash Run_manustript_design.sh
+
+# Run MCMC
+conda activate /opt/env/evoplay
+cd /opt/EvoPlay_for_codeocean/code/peptide_task/src/binder_design_MC-codeocean
+bash mcmc_design_local_HLC_repitition.sh
+
 ```
 
-And then you can find your result in `EvoZero/results/EvoZero_output`.
+And then you can find your result in `EvoPlay/results/EvoPlay_output`.
 
-The output files are: the new polypeptide sequence designed by EvoZero, the plddt score corresponding to the sequence, the loss result, the 3D structure file of the peptide, and the hyper-parameters of the EvoZero-peptide model.
+The output files are: the new polypeptide sequence designed by EvoPlay, the plddt score corresponding to the sequence, the loss result, the 3D structure file of the peptide, and the hyper-parameters of the EvoPlay-peptide model.
 
 + Output dir
 
-  + EvoZero/output/EvoZero_output/[PDBID]/[PDBID]_xxxx_init_1_playout22
+  + EvoPlay/output/EvoPlay_output/[PDBID]/[PDBID]_xxxx_init_1_playout22
 
     + sequence.npy
 
@@ -238,9 +244,9 @@ The output files are: the new polypeptide sequence designed by EvoZero, the pldd
 ![image-20221220165515906](./readme_picture/image-20221220165515906.png)
 
 
-# EvoZero-PAB1_GFP_task
+# EvoPlay-PAB1_GFP_task
 
-Main code In EvoZero/code/PAB1_GFP_task/: 
+Main code In EvoPlay/code/PAB1_GFP_task/: 
 
 + Main
   - ./train_m_single_m_p_pab1.py
@@ -252,19 +258,19 @@ Main code In EvoZero/code/PAB1_GFP_task/:
 
 ## Getting started
 
-In this task, We train our EvoZero on two protein dataset(PAB1、GFP) and generate new sequences. to perform this task，we just need two steps:
+In this task, We train our EvoPlay on two protein dataset(PAB1、GFP) and generate new sequences. to perform this task，we just need two steps:
 
 
 ### Step1: Generate new sequences by using the below command:
 
 
 ```shell
-source activate evozero
-cd EvoZero/code/PAB1_GFP_task
+source activate EvoPlay
+cd EvoPlay/code/PAB1_GFP_task
 python train_m_single_m_p_pab1.py
 ```
 
-After runing this command,the generated sequences will be stored in the evozero_pab1_generated_sequence_1.csv,we can use the oracle landscape to evaluate the quality of the generated sequences.
+After runing this command,the generated sequences will be stored in the EvoPlay_pab1_generated_sequence_1.csv,we can use the oracle landscape to evaluate the quality of the generated sequences.
 
 
 
@@ -285,8 +291,8 @@ GLuc design task corresponds to Gaussia luciferase engineering in the manuscript
  
 The model input files in */code/GLuc_design_task/input_file* are processed from *5-Gluc突变体位点信息.xlsx* in folder*/data/GLuc_design_preprocess_data/in_house_variant_preprocess*, and all Intermediate files generated during the preprocessing are in this folder. See *gluc_data_process.ipynb* for details of preprocessing.
 
-# EvoZero-assisted directed evolution 
-GB1_PhoQ_task corresponds to "EvoZero-assisted directed evolution" task in the manuscript.
+# EvoPlay-assisted directed evolution 
+GB1_PhoQ_task corresponds to "EvoPlay-assisted directed evolution" task in the manuscript.
 
 ## Running 
 ### Generate training data
@@ -305,9 +311,17 @@ An whole 500 repeats of completely generated training sequences are stored in */
 
 This script was used to design peptide.
 
-+ EvoZero/code/Peptide_task/Run_manustript_design_jupyter.ipynb
++ EvoPlay/code/Peptide_task/Run_manustript_design_jupyter.ipynb
 
-~~This script was used to compare the effects of EvoZero in different peptides.~~
+~~This script was used to compare the effects of EvoPlay in different peptides.~~
 
-- ~~EvoZero/code/Peptide_task/EvoZero_analysis.ipynb~~
+- ~~EvoPlay/code/Peptide_task/EvoPlay_analysis.ipynb~~
+
+
+
+
+
+
+
+
 
