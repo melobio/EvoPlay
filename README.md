@@ -6,7 +6,7 @@ This repository contains code and tutorials for protein sequence design task fro
 
 ```
 @article{Licko2023EvoPlay,
-  title={Self-play reinforcement learning turbocharges protein engineering},
+  title={Self-play reinforcement learning guides protein engineering},
   author={Yi Wang, Hui Tang, Lichao Huang, Lulu Pan, Lixiang Yang, Ming Ni, Huanming Yang, Feng Mu, Meng Yang},
   journal={xxxx},
   doi={xxxx},
