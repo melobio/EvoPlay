@@ -102,10 +102,10 @@ The docker image has a total size of 24GB, including the alphafold parameter fil
 
 ```shell
 # Old docker images, size about: 24.3GB, only for peptide_task
-docker pull licko789/EvoPlay:peptide
+docker pull licko789/EvoZero:peptide
 
 # New docker images, size about: 29.2GB, for all EvoPlay task
-docker pull licko789/EvoPlay:latest
+docker pull licko789/EvoZero:latest
 ```
 
 And then, launch EvoPlay docker image and enter the container interactively.
@@ -114,7 +114,7 @@ in the folder `your_workspace`,
 ```shell
 # Launch EvoPlay docker image
 nvidia-docker run \
-  -it -rm licko789/EvoPlay:latest \
+  -it -rm licko789/EvoZero:latest \
   -v /your_workspace:/docker_workspace \
   /bin/bash
 ```
