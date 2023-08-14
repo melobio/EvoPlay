@@ -1,2 +1,1 @@
-The file size is 0.7GB, you can download dataset from figshare link:
-https://figshare.com/s/10820edac340f1186ec6
+You can get the oracle weight files for the GFP and PAB1 datasets by running the 'download_landscape.sh' file (https://github.com/HeliXonProtein/proximal-exploration/blob/main/download_landscape.sh) under this link (https://github.com/HeliXonProtein/proximal-exploration)
