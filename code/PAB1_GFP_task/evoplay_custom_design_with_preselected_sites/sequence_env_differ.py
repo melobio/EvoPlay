@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+@author: Yi Wang
+"""
 
 from __future__ import print_function
 import numpy as np
