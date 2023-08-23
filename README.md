@@ -306,16 +306,7 @@ An whole 500 repeats of completely generated training sequences are stored in */
 
 # Notebook
 
-> Doing...
 
-
-This script was used to design peptide.
-
-+ EvoPlay/code/Peptide_task/Run_manustript_design_jupyter.ipynb
-
-~~This script was used to compare the effects of EvoPlay in different peptides.~~
-
-- ~~EvoPlay/code/Peptide_task/EvoPlay_analysis.ipynb~~
 
 
 
